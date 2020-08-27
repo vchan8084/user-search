@@ -1,4 +1,7 @@
 import React from 'react';
+/* Axios: HTTP client */
+/* Decided to use axios because I've used it before with React apps and it easily fetches data from APIs. The response is automatically returned in json format which is handy. */
+import axios from 'axios';
 
 export class SearchBar extends React.Component {
   constructor() {
@@ -8,6 +11,7 @@ export class SearchBar extends React.Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.renderUsers = this.renderUsers.bind(this);
   }
 
   handleChange(evt) {
@@ -16,9 +20,19 @@ export class SearchBar extends React.Component {
 
   handleSubmit(evt) {
     evt.preventDefault();
-    console.log('HERE');
-    /* renders search results */
+
+    const user = this.state.input;
+    this.renderUsers(user);
   }
+
+  renderUsers = async (user) => {
+    try {
+      const res = await axios.get(`https://api.github.com/users/${user}`);
+      console.log('RES', res);
+    } catch (error) {
+      console.log('ERROR', error);
+    }
+  };
 
   render() {
     return (
