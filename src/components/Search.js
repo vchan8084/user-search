@@ -2,25 +2,18 @@ import React from 'react';
 /* Axios: HTTP client */
 /* Decided to use axios because I've used it before with React apps and it easily fetches data from APIs. The response is automatically returned in json format which is handy. */
 import axios from 'axios';
+import SearchResult from './SearchResult';
 
-const SearchResults = () => {
-  return (
-    <div>
-      <p>SEARCH RESULTS</p>
-    </div>
-  );
-};
-
-export class SearchPage extends React.Component {
+export default class SearchPage extends React.Component {
   constructor() {
     super();
     this.state = {
       input: '',
-      showSearchResults: false,
+      listOfUsers: [],
+      totalCount: 0,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    // this.renderUsers = this.renderUsers.bind(this);
   }
 
   handleChange(evt) {
@@ -31,27 +24,39 @@ export class SearchPage extends React.Component {
     evt.preventDefault();
 
     const users = this.state.input;
-    console.log('USERS', users);
-    this.renderUsers(users);
+    this.fetchUsers(users);
   }
 
   // list of users: https://api.github.com/search/users?q=tom
   // specific user info: https://api.github.com/users/${user}
-  renderUsers = async (users) => {
-    this.setState({ showSearchResults: true });
+  fetchUsers = async (users) => {
     try {
       const res = await axios.get(
         `https://api.github.com/search/users?q=${users}`
       );
-      console.log('RES', res);
+      const data = res.data;
+      this.setState({ totalCount: data.total_count, listOfUsers: data.items });
     } catch (error) {
       console.log('ERROR', error);
     }
   };
 
-  render() {
-    const { showSearchResults } = this.state;
+  renderSearchResults = () => {
+    const { listOfUsers } = this.state;
 
+    if (Object.keys(listOfUsers).length && listOfUsers.length) {
+      return (
+        <div className="results-container">
+          {listOfUsers.map((eachUser) => {
+            return <SearchResult key={eachUser.id} eachUser={eachUser} />;
+          })}
+        </div>
+      );
+    }
+  };
+
+  render() {
+    const { totalCount } = this.state;
     return (
       <div>
         <div className="full-search">
@@ -75,7 +80,10 @@ export class SearchPage extends React.Component {
           </form>
         </div>
 
-        {showSearchResults ? <SearchResults /> : null}
+        <p>TOTAL RESULTS: {totalCount}</p>
+
+        {/*	Result*/}
+        {this.renderSearchResults()}
       </div>
     );
   }
