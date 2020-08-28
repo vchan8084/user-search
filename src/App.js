@@ -1,5 +1,5 @@
 import React from 'react';
-import { SearchBar } from './components/SearchBar';
+import { SearchPage } from './components/Search';
 import './App.css';
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
     <div>
       <div id="navbar" className="navbar">
         <h1 id="title">GitHub User Search</h1>
-        <SearchBar />
+        <SearchPage />
       </div>
     </div>
   );
