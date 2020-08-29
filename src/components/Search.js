@@ -2,6 +2,11 @@ import React from 'react';
 /* Axios: HTTP client */
 /* Decided to use axios because I've used it before with React apps and it easily fetches data from APIs. The response is automatically returned in json format which is handy. */
 import axios from 'axios';
+
+/* Used these libraries for pagination */
+import * as parse from 'parse-link-header';
+import Pagination from '@material-ui/lab/Pagination';
+
 import SearchResult from './SearchResult';
 
 export default class SearchPage extends React.Component {
@@ -11,6 +16,8 @@ export default class SearchPage extends React.Component {
       input: '',
       listOfUsers: [],
       totalCount: 0,
+      totalPages: 0,
+      currentPage: 1,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -23,19 +30,34 @@ export default class SearchPage extends React.Component {
   handleSubmit(evt) {
     evt.preventDefault();
 
-    const users = this.state.input;
-    this.fetchUsers(users);
+    const { input, currentPage } = this.state;
+    this.fetchUsers(input, currentPage);
   }
 
-  // list of users: https://api.github.com/search/users?q=tom
-  // specific user info: https://api.github.com/users/${user}
-  fetchUsers = async (users) => {
+  handlePageChange(currentPage) {
+    this.setState({ currentPage });
+
+    const { input } = this.state;
+    console.log('CURRENT PAGE', currentPage);
+    this.fetchUsers(input, currentPage);
+  }
+
+  fetchUsers = async (input, currentPage) => {
     try {
       const res = await axios.get(
-        `https://api.github.com/search/users?q=${users}`
+        `https://api.github.com/search/users?q=${input}&per_page=10&page=${currentPage}`
       );
+
       const data = res.data;
-      this.setState({ totalCount: data.total_count, listOfUsers: data.items });
+      const linkHeader = res.headers.link;
+      const parsed = parse(linkHeader);
+
+      this.setState({
+        totalCount: data.total_count,
+        listOfUsers: data.items,
+        totalPages: Number(parsed.last.page) || Number(parsed.prev.page),
+      });
+      this.renderSearchResults();
     } catch (error) {
       console.log('ERROR', error);
     }
@@ -56,7 +78,8 @@ export default class SearchPage extends React.Component {
   };
 
   render() {
-    const { totalCount } = this.state;
+    const { totalCount, totalPages, currentPage } = this.state;
+
     return (
       <div>
         <div className="full-search">
@@ -82,8 +105,14 @@ export default class SearchPage extends React.Component {
 
         <p>TOTAL RESULTS: {totalCount}</p>
 
-        {/*	Result*/}
         {this.renderSearchResults()}
+
+        <Pagination
+          count={totalPages}
+          color="primary"
+          page={currentPage}
+          onChange={(currentPage) => this.handlePageChange(currentPage)}
+        />
       </div>
     );
   }
