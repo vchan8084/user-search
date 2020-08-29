@@ -7,6 +7,8 @@ import axios from 'axios';
 import * as parse from 'parse-link-header';
 import Pagination from '@material-ui/lab/Pagination';
 
+import SearchIcon from '@material-ui/icons/Search';
+
 import SearchResult from './SearchResult';
 
 export default class SearchPage extends React.Component {
@@ -38,7 +40,6 @@ export default class SearchPage extends React.Component {
     this.setState({ currentPage });
 
     const { input } = this.state;
-    console.log('CURRENT PAGE', currentPage);
     this.fetchUsers(input, currentPage);
   }
 
@@ -68,7 +69,7 @@ export default class SearchPage extends React.Component {
 
     if (Object.keys(listOfUsers).length && listOfUsers.length) {
       return (
-        <div className="results-container">
+        <div>
           {listOfUsers.map((eachUser) => {
             return <SearchResult key={eachUser.id} eachUser={eachUser} />;
           })}
@@ -82,8 +83,8 @@ export default class SearchPage extends React.Component {
 
     return (
       <div>
-        <div className="full-search">
-          <form>
+        <div>
+          <form className="full-search">
             <input
               id="search-bar"
               onChange={this.handleChange}
@@ -95,19 +96,17 @@ export default class SearchPage extends React.Component {
               onClick={this.handleSubmit}
               type="submit"
             >
-              <img
-                src="https://library.kissclipart.com/20181214/khe/kissclipart-black-magnifying-glass-clipart-magnifying-glass-cl-d9dedc081ac202cb.png"
-                alt="search button"
-              />
+              <SearchIcon />
             </button>
           </form>
         </div>
 
-        <p>TOTAL RESULTS: {totalCount}</p>
+        <p id="total-results">TOTAL RESULTS: {totalCount}</p>
 
-        {this.renderSearchResults()}
+        <div className="search-results">{this.renderSearchResults()}</div>
 
         <Pagination
+          className="pagination"
           count={totalPages}
           color="primary"
           page={currentPage}
