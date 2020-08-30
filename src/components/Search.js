@@ -36,11 +36,11 @@ export default class SearchPage extends React.Component {
     this.fetchUsers(input, currentPage);
   }
 
-  handlePageChange(currentPage) {
-    this.setState({ currentPage });
+  handlePageChange(evt, page) {
+    this.setState({ page });
 
     const { input } = this.state;
-    this.fetchUsers(input, currentPage);
+    this.fetchUsers(input, page);
   }
 
   fetchUsers = async (input, currentPage) => {
@@ -56,7 +56,8 @@ export default class SearchPage extends React.Component {
       this.setState({
         totalCount: data.total_count,
         listOfUsers: data.items,
-        totalPages: Number(parsed.last.page) || Number(parsed.prev.page),
+        totalPages: Number(parsed.last.page),
+        currentPage: currentPage,
       });
       this.renderSearchResults();
     } catch (error) {
@@ -110,7 +111,7 @@ export default class SearchPage extends React.Component {
           count={totalPages}
           color="primary"
           page={currentPage}
-          onChange={(currentPage) => this.handlePageChange(currentPage)}
+          onChange={(evt, page) => this.handlePageChange(evt, page)}
         />
       </div>
     );

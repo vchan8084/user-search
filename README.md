@@ -4,7 +4,7 @@
 
 ## Getting Started
 
-Deployed here:
+Deployed here: https://vchan8084.github.io/user-search/
 
 ### How To Install
 
